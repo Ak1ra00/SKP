@@ -29,6 +29,8 @@ const accessKey = configured && provider === 'web3forms' ? key.trim() : null;
 >
   {accessKey && <input type="hidden" name="access_key" value={accessKey} />}
   <input type="hidden" name="subject" value={`New message from ${site.url}`} />
+  {/* Populated on submit so Reply goes to the sender, not the provider. */}
+  <input type="hidden" name="replyto" id="cf-replyto" value="" />
 
   <div class="field">
     <label for="cf-name">Name</label>
@@ -107,6 +109,10 @@ const accessKey = configured && provider === 'web3forms' ? key.trim() : null;
         say('err', 'This form is not connected to a delivery service yet.');
         return;
       }
+
+      // Reply-to follows whoever filled the form in.
+      var replyto = document.getElementById('cf-replyto');
+      if (replyto) replyto.value = form.elements['email'].value.trim();
 
       btn.disabled = true;
       btn.textContent = 'Sending…';

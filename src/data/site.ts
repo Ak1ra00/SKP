@@ -63,7 +63,7 @@ export const site = {
    *                Free tier allows 50 submissions per month.
    */
   form: {
-    provider: '' as '' | 'web3forms' | 'formspree',
-    key: '',
+    provider: 'web3forms' as '' | 'web3forms' | 'formspree',
+    key: 'ad30ab59-627f-4b1a-92c6-99c59ea59115',
   },
 };

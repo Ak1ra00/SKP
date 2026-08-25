@@ -25,7 +25,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # enablement:true turns Pages on via the API if it is not already on,
+      # so the repository needs no manual Settings -> Pages step.
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       # dist/ contains CNAME, copied from public/ during the build.
       - uses: actions/upload-pages-artifact@v3
         with:

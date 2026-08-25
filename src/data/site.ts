@@ -48,6 +48,33 @@ export const site = {
   ],
 
   /**
+   * Side project. Public repo, so linking it is fine — but keep the write-up
+   * about the work, not about you.
+   */
+  project: {
+    name: 'Vaultless',
+    tagline: 'A password manager with no vault.',
+    body:
+      'Passwords are derived on demand from a passphrase plus an oracle that ' +
+      'holds the key — either an ESP32 device talking to the browser over ' +
+      'WebSerial, or a printed QR square. The same two inputs always ' +
+      'regenerate the same password, so there is no vault file to sync, back ' +
+      'up, or leak.',
+    points: [
+      'A two-party oblivious PRF over ristretto255 blinds the input, so the oracle does its part without ever seeing the passphrase.',
+      'The device returns a Chaum–Pedersen DLEQ proof and a pinned public key, so a swapped or tampered oracle is rejected rather than silently yielding different passwords.',
+      'A paper oracle carries the same key as a checksummed Crockford base32 code, making a printed sheet a genuine backup of a device rather than a parallel mode.',
+    ],
+    stack: ['ristretto255', 'OPRF', 'HKDF-SHA256', 'ESP32 firmware', 'WebSerial'],
+    repo: 'https://github.com/Ak1ra00/SK',
+    /** Why this sits next to the day job. */
+    note:
+      'Applied cryptography and hardware security are a standing interest — ' +
+      'the same instinct as the day job, wanting to understand a system down ' +
+      'to the layer where it actually works.',
+  },
+
+  /**
    * Contact form delivery. Your email address is never written into the page —
    * it lives with the provider, and the form posts to them.
    *

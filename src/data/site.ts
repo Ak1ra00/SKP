@@ -11,7 +11,7 @@ export const site = {
   initials: 'SK',
   url: 'https://soufianekh.space',
 
-  role: 'Robotics & Automation Technician',
+  role: 'Aerospace Industrial Engineer',
   location: 'Los Angeles, California',
 
   /** One sentence. The whole pitch. */
@@ -48,9 +48,22 @@ export const site = {
   ],
 
   /**
-   * Formspree endpoint. Create a free form at https://formspree.io and paste
-   * the endpoint here. Until then the form shows a friendly notice instead of
-   * submitting. Your address is never exposed on the page.
+   * Contact form delivery. Your email address is never written into the page —
+   * it lives with the provider, and the form posts to them.
+   *
+   * Pick ONE provider and fill in `key`. Until then the form stays inert and
+   * says so on the page.
+   *
+   *   web3forms  — no account needed. Enter your email at
+   *                https://web3forms.com and they email you an access key
+   *                (a UUID). Paste that key below. Unlimited submissions.
+   *
+   *   formspree  — create a free form at https://formspree.io, then paste the
+   *                whole endpoint URL (https://formspree.io/f/xxxxxxxx).
+   *                Free tier allows 50 submissions per month.
    */
-  formEndpoint: '',
+  form: {
+    provider: '' as '' | 'web3forms' | 'formspree',
+    key: '',
+  },
 };

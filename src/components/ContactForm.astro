@@ -1,16 +1,35 @@
 ---
 import { site } from '../data/site';
 
-const configured = site.formEndpoint.trim().length > 0;
+const { provider, key } = site.form;
+const configured = provider !== '' && key.trim().length > 0;
+
+/**
+ * Both providers accept a POST of FormData and answer with JSON when the
+ * request carries `Accept: application/json`.
+ *   web3forms — fixed endpoint, the key travels in the body as `access_key`
+ *   formspree — the key *is* the endpoint
+ */
+const action = !configured
+  ? undefined
+  : provider === 'web3forms'
+    ? 'https://api.web3forms.com/submit'
+    : key.trim();
+
+const accessKey = configured && provider === 'web3forms' ? key.trim() : null;
 ---
 
 <form
   class="form"
   id="contact-form"
   method="POST"
-  action={configured ? site.formEndpoint : undefined}
+  action={action}
   data-configured={configured ? 'true' : 'false'}
+  novalidate
 >
+  {accessKey && <input type="hidden" name="access_key" value={accessKey} />}
+  <input type="hidden" name="subject" value={`New message from ${site.url}`} />
+
   <div class="field">
     <label for="cf-name">Name</label>
     <input id="cf-name" name="name" type="text" autocomplete="name" required />
@@ -26,21 +45,23 @@ const configured = site.formEndpoint.trim().length > 0;
     <textarea id="cf-message" name="message" rows="6" required></textarea>
   </div>
 
-  <!-- Spam trap: a real person never fills this in. -->
+  {/* Spam traps. A real person never fills these in. */}
   <div class="hp" aria-hidden="true">
     <label for="cf-company">Company</label>
     <input id="cf-company" name="_gotcha" type="text" tabindex="-1" autocomplete="off" />
+    <input name="botcheck" type="checkbox" tabindex="-1" />
   </div>
 
-  <button class="btn" type="submit">Send message</button>
+  <button class="btn" type="submit" id="cf-submit">Send message</button>
 
-  <p class="form-note" id="cf-note" hidden></p>
+  <p class="form-note" id="cf-note" role="status" aria-live="polite" hidden></p>
 
   {
     !configured && (
       <p class="form-note">
-        This form isn’t connected yet. Add a Formspree endpoint to
-        <code> src/data/site.ts </code> to start receiving messages.
+        Not connected yet — set <code>form.provider</code> and{' '}
+        <code>form.key</code> in <code>src/data/site.ts</code>. See the README
+        for the two-minute version.
       </p>
     )
   }
@@ -50,8 +71,10 @@ const configured = site.formEndpoint.trim().length > 0;
   (function () {
     var form = document.getElementById('contact-form');
     if (!form) return;
+
     var note = document.getElementById('cf-note');
-    var btn = form.querySelector('button[type=submit]');
+    var btn = document.getElementById('cf-submit');
+    var label = btn.textContent;
 
     function say(state, text) {
       note.hidden = false;
@@ -59,16 +82,35 @@ const configured = site.formEndpoint.trim().length > 0;
       note.textContent = text;
     }
 
+    function invalidField() {
+      var name = form.elements['name'];
+      var email = form.elements['email'];
+      var message = form.elements['message'];
+      if (!name.value.trim()) return [name, 'Please enter your name.'];
+      if (!email.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim()))
+        return [email, 'Please enter a valid email address.'];
+      if (!message.value.trim()) return [message, 'Please enter a message.'];
+      return null;
+    }
+
     form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      var bad = invalidField();
+      if (bad) {
+        say('err', bad[1]);
+        bad[0].focus();
+        return;
+      }
+
       if (form.dataset.configured !== 'true') {
-        e.preventDefault();
         say('err', 'This form is not connected to a delivery service yet.');
         return;
       }
 
-      e.preventDefault();
       btn.disabled = true;
-      say('', 'Sending…');
+      btn.textContent = 'Sending…';
+      say('', 'Sending your message…');
 
       fetch(form.action, {
         method: 'POST',
@@ -76,18 +118,25 @@ const configured = site.formEndpoint.trim().length > 0;
         headers: { Accept: 'application/json' },
       })
         .then(function (r) {
-          if (r.ok) {
+          return r.json().catch(function () { return {}; }).then(function (data) {
+            return { ok: r.ok, data: data };
+          });
+        })
+        .then(function (res) {
+          // web3forms reports its own success flag; formspree uses the status.
+          if (res.ok && res.data.success !== false) {
             form.reset();
             say('ok', 'Thanks — your message has been sent.');
           } else {
-            say('err', 'Something went wrong. Please try again.');
+            say('err', 'That did not go through. Please try again shortly.');
           }
         })
         .catch(function () {
-          say('err', 'Network error. Please try again.');
+          say('err', 'Network error — please check your connection and retry.');
         })
         .finally(function () {
           btn.disabled = false;
+          btn.textContent = label;
         });
     });
   })();

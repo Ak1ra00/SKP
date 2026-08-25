@@ -31,15 +31,48 @@ process and programme names. Specifics belong in the resume you send directly.
 
 ## Connecting the contact form
 
-The form is inert until it has an endpoint:
+The form is built and validated but inert until you pick a delivery service.
+Your email address never appears in the page source either way — it lives with
+the provider.
+
+Set both values in `src/data/site.ts`:
+
+```ts
+form: {
+  provider: 'web3forms',   // or 'formspree'
+  key: '...',
+},
+```
+
+### Option A — Web3Forms (no account, recommended)
+
+1. Go to <https://web3forms.com>
+2. Enter the email address where you want messages delivered
+3. They email you an **access key** (a UUID)
+4. Set `provider: 'web3forms'` and paste the key into `key`
+
+Free, unlimited submissions, nothing to sign up for.
+
+### Option B — Formspree
 
 1. Create a free form at <https://formspree.io>
-2. Copy the endpoint (`https://formspree.io/f/xxxxxxxx`)
-3. Paste it into `formEndpoint` in `src/data/site.ts`
+2. Copy the endpoint, e.g. `https://formspree.io/f/xkgvabcd`
+3. Set `provider: 'formspree'` and paste the **whole URL** into `key`
 
-Submissions then arrive by email without your address ever appearing on the
-page. Formspree receives each submission and the sender's address. A hidden
-honeypot field (`_gotcha`) catches most spam bots.
+Free tier allows 50 submissions per month.
+
+### What the form already does
+
+- Validates name, email and message before sending, and moves focus to the
+  first field that needs fixing
+- Announces status through `aria-live`, so screen readers hear the result
+- Disables the button and shows "Sending…" while in flight
+- Carries two hidden honeypot fields (`_gotcha`, `botcheck`) that catch most
+  spam bots
+- Reports provider-side rejections and network errors distinctly
+
+Whichever provider you choose receives every submission and the sender's
+address. That is the trade for not publishing your own address.
 
 ## Deploying
 

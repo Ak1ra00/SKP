@@ -28,7 +28,9 @@ const accessKey = configured && provider === 'web3forms' ? key.trim() : null;
   novalidate
 >
   {accessKey && <input type="hidden" name="access_key" value={accessKey} />}
-  <input type="hidden" name="subject" value={`New message from ${site.url}`} />
+  {/* No URL in the subject — a bare link there is a common spam signal. */}
+  <input type="hidden" name="subject" value="New contact form message" />
+  <input type="hidden" name="from_name" value="soufianekh.space" />
   {/* Populated on submit so Reply goes to the sender, not the provider. */}
   <input type="hidden" name="replyto" id="cf-replyto" value="" />
 

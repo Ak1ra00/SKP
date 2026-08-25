@@ -118,10 +118,19 @@ const accessKey = configured && provider === 'web3forms' ? key.trim() : null;
       btn.textContent = 'Sending…';
       say('', 'Sending your message…');
 
+      // Give up rather than spin forever if the network stalls.
+      var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var timedOut = false;
+      var timer = setTimeout(function () {
+        timedOut = true;
+        if (ctrl) ctrl.abort();
+      }, 15000);
+
       fetch(form.action, {
         method: 'POST',
         body: new FormData(form),
         headers: { Accept: 'application/json' },
+        signal: ctrl ? ctrl.signal : undefined,
       })
         .then(function (r) {
           return r.json().catch(function () { return {}; }).then(function (data) {
@@ -138,9 +147,15 @@ const accessKey = configured && provider === 'web3forms' ? key.trim() : null;
           }
         })
         .catch(function () {
-          say('err', 'Network error — please check your connection and retry.');
+          say(
+            'err',
+            timedOut
+              ? 'That took too long. Please check your connection and try again.'
+              : 'Network error — please check your connection and retry.'
+          );
         })
         .finally(function () {
+          clearTimeout(timer);
           btn.disabled = false;
           btn.textContent = label;
         });

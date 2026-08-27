@@ -66,10 +66,16 @@ export const site = {
     stack: ['ristretto255', 'OPRF', 'HKDF-SHA256', 'ESP32', 'WebSerial'],
     repo: 'https://github.com/Ak1ra00/SK',
     /**
-     * The repo's CNAME names vaultless.space, but that domain does not resolve
-     * yet. Point this there once it does.
+     * Live-site link. Empty hides the "Visit site" button.
+     *
+     * Disabled: vaultless.space currently redirect-loops. The apex carries a
+     * stray Namecheap forwarding A record (192.64.119.220) alongside GitHub's
+     * four Pages IPs, so the apex 302s to www while GitHub 301s www back to
+     * the apex. Remove that A record and any URL-forwarding rule at the
+     * registrar, let GitHub issue the certificate, then set this to
+     * 'https://vaultless.space/'.
      */
-    site: 'https://ak1ra00.github.io/SK/',
+    site: '',
     note: 'Applied cryptography and hardware security are a standing interest.',
   },
 

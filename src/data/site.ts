@@ -68,14 +68,13 @@ export const site = {
     /**
      * Live-site link. Empty hides the "Visit site" button.
      *
-     * Disabled: vaultless.space currently redirect-loops. The apex carries a
-     * stray Namecheap forwarding A record (192.64.119.220) alongside GitHub's
-     * four Pages IPs, so the apex 302s to www while GitHub 301s www back to
-     * the apex. Remove that A record and any URL-forwarding rule at the
-     * registrar, let GitHub issue the certificate, then set this to
-     * 'https://vaultless.space/'.
+     * http, not https: GitHub has issued no certificate for vaultless.space,
+     * because a stray Namecheap A record (192.64.119.220) still sits in the
+     * apex rotation beside GitHub's four Pages IPs and breaks ACME validation.
+     * Remove that record, re-save the custom domain in the SK repo's Pages
+     * settings, and switch this to https once the certificate issues.
      */
-    site: '',
+    site: 'http://vaultless.space/',
     note: 'Applied cryptography and hardware security are a standing interest.',
   },
 
